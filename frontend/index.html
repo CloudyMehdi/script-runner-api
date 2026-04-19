@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head lang="EN">
+        <title>Script Dash Panel</title>
+        <meta charset="UTF-8">
+        <style>
+            body {display: flex; flex-direction: column; align-items: center;}
+            .panel {display: flex; justify-content: space-around; padding: 5px; margin: 5px;}
+            button {margin: 0 1em 0 1em;}
+            #terminal {border: solid black 1px; height: 25em; width: 35em; padding: 0.5em; margin: 5px;}
+        </style>
+    </head>
+    <body>
+        <h1>Script Dash Panel</h1>
+        <p>Execute scripts, and see what happens in the "terminal"!</p>
+
+        <div class="panel">
+            <button onclick="callApi('health')">Health</button>
+            <button onclick="callApi('ping', 'destination')">Ping</button>
+            <button onclick="callApi('logs', 'lines')">Logs</button>
+            <button onclick="callApi('print', 'arg')">Print</button>
+        </div>
+
+        <input type="text" id="args"/>
+
+        <div id="terminal">
+        </div>
+
+        <p>Note: the ping command only works with web servers from their domain name.</p>    
+        <script>
+            function callApi(scriptName, query="") {
+                let url = `/api/${scriptName}`;
+                const input = document.querySelector("#args").value;
+                
+                console.log(input);
+                if (query && input) {
+                    url += `?${query}=${input}`;
+                }
+
+                fetch(url)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("HTTP error " + res.status);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    const $terminal = document.querySelector("#terminal");
+                    $terminal.textContent = data.message;
+
+                    if (data.status === 200) {
+                        $terminal.style.color = "black";
+                    } else {
+                        $terminal.style.color = "red";
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+            }
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,27 @@
+name: API deployment
+
+on:
+  workflow_run:
+    workflows: [ "ci" ]
+    types:
+      - completed
+
+jobs: 
+
+  docker-push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login Docker Hub
+        run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+        # Stored in secrets for consistency and flexibility (not actually sensitive)
+      - name: Build Docker Image
+        run: docker build -t "${{ secrets.DOCKER_USERNAME }}"/script-runner-api .
+
+      - name: Push Docker Image
+        run: docker push "${{ secrets.DOCKER_USERNAME }}"/script-runner-api
