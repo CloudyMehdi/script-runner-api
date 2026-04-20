@@ -2,7 +2,7 @@ name: API deployment
 
 on:
   workflow_run:
-    workflows: [ "ci" ]
+    workflows: [ "API ci" ]
     types:
       - completed
 
